@@ -1,0 +1,99 @@
+
+CREATE TABLE SearchDatabase (
+ pkid INTEGER PRIMARY KEY ASC AUTOINCREMENT,
+ name TEXT,
+ format TEXT,
+ numDatabaseSequences INTEGER,
+ numResidues INTEGER,
+ releaseDate TEXT,
+ version TEXT,
+ location TEXT
+);
+
+CREATE TABLE DBSequence (
+ pkid INTEGER PRIMARY KEY,
+ id INTEGER,
+ SearchDatabase_pkid INTEGER REFERENCES SearchDatabase(pkid);,
+ accession TEXT,
+ description TEXT,
+ length INTEGER,
+ sequence TEXT
+);
+
+CREATE TABLE Peptide (
+ pkid INTEGER PRIMARY KEY,
+ sequence TEXT,
+ modNum INTEGER
+);
+
+CREATE TABLE Modification (
+ pkid INTEGER PRIMARY KEY,
+ Peptide_pkid INTEGER REFERENCES Peptide(pkid);,
+ location INTEGER,
+ residues TEXT,
+ replacementResidue TEXT,
+ name TEXT,
+ avgMassDelta REAL,
+ monoisotopicMassDelta REAL
+);
+
+CREATE TABLE SpectrumIdentification (
+ pkid INTEGER PRIMARY KEY,
+ Spectrum_pkid TEXT,
+ spectrum_id TEXT,
+ acquisitionNum INTEGER,
+ chargeState INTEGER,
+ retentionTime REAL,
+ rank INTEGER,
+ passThreshold INTEGER,
+ experimentalMassToCharge REAL,
+ calculatedMassToCharge REAL
+);
+
+CREATE TABLE Score (
+ pkid INTEGER PRIMARY KEY,
+ SpectrumIdentification_pkid INTEGER REFERENCES SpectrumIdentification(pkid);,
+ spectrum_identification_id TEXT
+);
+
+CREATE TABLE PeptideEvidence (
+ pkid INTEGER PRIMARY KEY,
+ SpectrumIdentification_pkid INTEGER REFERENCES SpectrumIdentification(pkid);,
+ Peptide_pkid INTEGER REFERENCES Peptide(pkid);,
+ DBSequence_pkid INTEGER REFERENCES DBSequence(pkid);,
+ isDecoy INTEGER,
+ pre TEXT,
+ post TEXT,
+ start INTEGER,
+ end INTEGER
+);
+
+CREATE TABLE Spectrum (
+ pkid INTEGER PRIMARY KEY,
+ id TEXT,
+ acquisitionNum INTEGER,
+ msLevel INTEGER,
+ polarity INTEGER,
+ peaksCount INTEGER,
+ totIonCurrent REAL,
+ retentionTime REAL,
+ basePeakMZ REAL,
+ basePeakIntensity REAL,
+ collisionEnergy REAL,
+ ionisationEnergy REAL,
+ lowMZ REAL,
+ highMZ REAL,
+ precursorScanNum INTEGER,
+ precursorMZ REAL,
+ precursorCharge INTEGER,
+ precursorIntensity REAL
+);
+
+CREATE TABLE Peaks (
+ pkid INTEGER PRIMARY KEY,
+ Spectrum_pkid INTEGER REFERENCES Spectrum(pkid);,
+ acquisitionNum INTEGER,
+ moz TEXT,
+ intensity TEXT
+);
+
