@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>edu.umn.msi.gx</groupId>
+  <artifactId>mzToSQLite</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>2.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <transformers>
+                <transformer>
+                  <mainClass>edu.umn.msi.gx.mztosqlite.MzToSQLite</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <repositories>
+    <repository>
+      <id>tmate</id>
+      <url>http://maven.tmatesoft.com/content/repositories/releases</url>
+    </repository>
+  </repositories>
+  <properties>
+    <java.mail.version>1.4.4</java.mail.version>
+    <pride.utilities.version>0.1.21</pride.utilities.version>
+    <jmzidentml.version>1.1.4-SNAPSHOT</jmzidentml.version>
+    <assembly.dir>${name}-${version}</assembly.dir>
+    <pride.jaxb.version>1.0.8</pride.jaxb.version>
+    <apache.commons.net.version>3.0.1</apache.commons.net.version>
+    <apache.http.client>4.2.1</apache.http.client>
+    <maven.compiler.target>1.7</maven.compiler.target>
+    <java.help.version>2.0.02</java.help.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <java.webstart.version>1.5.0</java.webstart.version>
+    <maven.compiler.source>1.7</maven.compiler.source>
+  </properties>
+</project>
+
