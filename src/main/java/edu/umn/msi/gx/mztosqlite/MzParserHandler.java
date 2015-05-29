@@ -23,5 +23,9 @@ public class MzParserHandler {
     public Object handle(String tableName, Map<String,Object> values) {
         return this.mzSQLiteDB.insertOrReplace(tableName, values);
     }
+    
+    public void addTableColumns(String table,Map<String,Class> colTypes) {
+        mzSQLiteDB.addTableColumns(table, colTypes);
+    }
 
 }

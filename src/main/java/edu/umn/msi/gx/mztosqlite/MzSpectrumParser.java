@@ -130,13 +130,13 @@ public class MzSpectrumParser {
                     case "MS:1000894":
                         spectrumValues.put("retentionTime", cv.getValue());
                         break;
-                        /* MGF: additional params
-                        CvParam("retention time", retentionTime, "MS", "MS:1000894")
+                    case "MS:1000796":
+                        spectrumValues.put("title", cv.getValue());
+                        break;
+                    /* Additional params
                         CvParam("peak list scans", scan, "MS", "MS:1000797")
-                        CvParam("spectrum title", title, "MS", "MS:1000796")
-                        CvParam("Fragment mass tolerance setting", tolerance.toString(), "PRIDE", "PRIDE:0000161")  
                         CvParam("Fragment mass tolerance setting", tolerance.toString(), "PRIDE", "PRIDE:0000161")                               
-                        */
+                    */
                     default:
                         break;
                 }
@@ -144,7 +144,10 @@ public class MzSpectrumParser {
             
             Object spectrum_pkid = parseHandler.handle("Spectrum", spectrumValues);
             if (spectrumIdPkidMap != null) {
-                spectrumIdPkidMap.put(spectrumID, spectrum_pkid);
+                spectrumIdPkidMap.put(spectrumID, spectrum_pkid);                
+                if (spectrumValues.get("title") != null) {
+                    spectrumIdPkidMap.put((String) spectrumValues.get("title"), spectrum_pkid);
+                }
             }
             List<Double> mozArray = new ArrayList<>();
             List<Double> intensityArray = new ArrayList<>();
@@ -157,11 +160,12 @@ public class MzSpectrumParser {
             String intensity = intensityArray.toString().replaceAll(" ", "");
             Map<String,Object> peakValues = new HashMap<>();
             peakValues.put("acquisitionNum", acquisitionNum);
-            peakValues.put("spectrum_pkid", spectrum_pkid);           
+            peakValues.put("Spectrum_pkid", spectrum_pkid);           
             peakValues.put("moz", moz);
             peakValues.put("intensity", intensity);
-            Object peak_pkid = parseHandler.handle("Peaks", peakValues);            
+            Object peak_pkid = parseHandler.handle("Peaks", peakValues);   
         }
+        
     }
 
     private JMzReader getSpectrumParser(File inputFile,ProteomicsFormat format) throws Exception {

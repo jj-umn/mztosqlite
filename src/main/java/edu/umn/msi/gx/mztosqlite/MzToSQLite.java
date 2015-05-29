@@ -30,6 +30,7 @@ import org.tmatesoft.sqljet.core.SqlJetException;
 public class MzToSQLite {
     Map<String, ProteomicsFormat> scanFiles = new HashMap<>();
     Map<String, ProteomicsFormat> identFiles = new HashMap<>();
+    Map<String, ProteomicsFormat> seqDbFiles = new HashMap<>();
     String dbPath = null;
     String jsonPath = null;
     String tsvPath = null;
@@ -37,15 +38,25 @@ public class MzToSQLite {
     MzSQLiteDB mzSQLiteDB = null;
 
     public final void parseOptions(String[] args) {
+        Integer MAX_INPUTS = 100;
         Parser parser = new BasicParser();
         String dbOpt = "sqlite";
+        String inputFileOpt = "input";
+        String inputNameOpt = "name";
+        String inputIdOpt = "encoded_id";
         String verboseOpt = "verbose";
         String helpOpt = "help";
         Options options = new Options();
         options.addOption("s", dbOpt, true, "SQLite output file");
         options.addOption("v", verboseOpt, false, "verbose");
         options.addOption("h", helpOpt, false, "help");
-
+        options.addOption("i", inputFileOpt, verbose, "input file");
+        options.addOption("n", inputNameOpt, verbose, "name for input file");
+        options.addOption("e", inputIdOpt, verbose, "encoded id for input file");
+        options.addOption("f", inputIdOpt, verbose, "FASTA Search Database files");
+        options.getOption(inputFileOpt).setArgs(MAX_INPUTS);
+        options.getOption(inputNameOpt).setArgs(MAX_INPUTS);
+        options.getOption(inputIdOpt).setArgs(MAX_INPUTS);
         // create the parser
         try {
             // parse the command line arguments
@@ -89,6 +100,9 @@ public class MzToSQLite {
                                 case PRIDEXML:
                                     scanFiles.put(filePath, format);
                                     break;
+                                case FASTA:
+                                    seqDbFiles.put(filePath, format);
+                                    break;
                                 case PEPXML:
                                 case UNSUPPORTED:
                                 default:
@@ -102,7 +116,6 @@ public class MzToSQLite {
                         Logger.getLogger(MzToSQLite.class.getName()).log(Level.WARNING, "Unable to read {0}", filePath);
                     }
                 }
-
             }
         } catch (ParseException exp) {
             Logger.getLogger(MzToSQLite.class.getName()).log(Level.SEVERE, null, exp);
@@ -135,12 +148,14 @@ public class MzToSQLite {
             source.put("format", format.toString());            
             handler.handle("Source", source);
             MzIdentParser mzIdentParser = new MzIdentParser(filepath,spectrumIdPkidMap);
+            for (String fastapath : seqDbFiles.keySet()) {
+                mzIdentParser.readFasta(fastapath);
+            }            
             mzIdentParser.parseIdent(handler);
-        }
+        }    
     }
 
     public static void main(String[] args) {
-
         try {
             MzToSQLite mzToSQLite = new MzToSQLite();
             mzToSQLite.parseOptions(args);

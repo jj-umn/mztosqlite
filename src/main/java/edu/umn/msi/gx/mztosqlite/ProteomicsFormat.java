@@ -22,6 +22,7 @@ public enum ProteomicsFormat {
     MZDATA(".xml"),
     PRIDEXML(".xml"),
     PEPXML(".pep.xml"),
+    FASTA(".fasta"),
     UNSUPPORTED("?");
 
     private final String extension;
@@ -51,46 +52,49 @@ public enum ProteomicsFormat {
         }
         return null;
     }
+    
     public static ProteomicsFormat getFormat(File inputFile) throws IOException {
-        if (checkHeader(inputFile, "<MzIdentML")) {
-            return MZID;
-        }
-        if (checkHeader(inputFile, "http://regis-web.systemsbiology.net/pepXML")) {
-            return PEPXML;
-        }
-        
-        if (checkHeader(inputFile, "<mzML")) {
-            return MZML;
-        }
-        if (checkHeader(inputFile, "<ExperimentCollection version=\"")) {
-            return PRIDEXML;
-        }
-        // check for mzData
-        if (checkHeader(inputFile, "<mzData version=\"1.05\"")) {
-            return MZDATA;
-        }
-        //check for mzXML
-        if (checkHeader(inputFile, "<mzXML")) {
-            return MZXML;
-        }
-        //check for mzXML
-        if (checkHeader(inputFile, "BEGIN IONS")) {
-            return MGF;
-        }
-        return UNSUPPORTED;
-    }
-
-    public static boolean checkHeader(File file, String string) throws IOException {
-        boolean match = false;
+        ProteomicsFormat fmt = null;
         FileReader fr = null;
         try {
-            fr = new FileReader(file);
+            fr = new FileReader(inputFile);
             // read the first 1000 bytes
             char[] buffer = new char[1000];
             fr.read(buffer);
             String header = new String(buffer);
-            match = header.contains(string);
-        } finally {
+            String[] lines = header.split("\\r?\\n");
+            //mzid
+            if (header.contains("<MzIdentML")) {
+                return MZID;
+            }
+            if (header.contains("http://regis-web.systemsbiology.net/pepXML")) {
+                return PEPXML;
+            }
+            if (header.contains("<mzML")) {
+                return MZML;
+            }
+            if (header.contains("<ExperimentCollection version=\"")) {
+                return PRIDEXML;
+            }
+            // check for mzData
+            if (header.contains("<mzData version=\"1.05\"")) {
+                return MZDATA;
+            }
+            //check for mzXML
+            if (header.contains("<mzXML")) {
+                return MZXML;
+            }
+            //check for MGF
+            if (header.contains("BEGIN IONS")) {
+                return MGF;
+            }
+            //fasta
+            for (String line : lines) {
+                if (line.trim().length() > 0 && line.startsWith(">")) {
+                    return FASTA;
+                }
+            }
+     } finally {
             try {
                 if (fr != null) {
                     fr.close();
@@ -99,7 +103,7 @@ public enum ProteomicsFormat {
                 // ignore
             }
         }
-        return match;
+        return UNSUPPORTED;
     }
 
 }
